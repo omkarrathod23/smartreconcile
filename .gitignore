@@ -1,0 +1,24 @@
+# ===== Java / Maven =====
+target/
+**/target/
+*.jar
+*.class
+
+# ===== Node / Next.js =====
+node_modules/
+.next/
+dist/
+
+# ===== Env files =====
+.env
+.env.*
+application.properties
+application.yml
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.iml
+
+# ===== OS =====
+.DS_Store
