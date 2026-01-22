@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background-light: #F8FAFC;
+  --color-background-dark: #0B0F19;
+  --color-primary: #2563EB;
+  --color-text-primary-light: #0F172A;
+  --color-text-primary-dark: #E5E7EB;
+  --color-muted: #94A3B8;
+  --color-success: #16A34A;
+  --color-warning: #F59E0B;
+  --color-danger: #DC2626;
+
+  --radius-xl: 0.75rem;
+
+  --font-inter: "Inter", sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: var(--color-background-light);
+    --foreground: var(--color-text-primary-light);
+    --card: 0 0% 100%;
+    --card-foreground: var(--color-text-primary-light);
+    --popover: 0 0% 100%;
+    --popover-foreground: var(--color-text-primary-light);
+    --primary: var(--color-primary);
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: var(--color-muted);
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: var(--color-danger);
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: var(--color-primary);
+    --radius: var(--radius-xl);
+  }
+
+  .dark {
+    --background: var(--color-background-dark);
+    --foreground: var(--color-text-primary-dark);
+    --card: 222.2 84% 4.9%;
+    --card-foreground: var(--color-text-primary-dark);
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: var(--color-text-primary-dark);
+    --primary: var(--color-primary);
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: var(--color-muted);
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: var(--color-danger);
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: var(--color-primary);
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-inter);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
