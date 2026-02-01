@@ -8,9 +8,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/invoices")
@@ -19,10 +21,18 @@ public class InvoiceController {
     @Autowired
     InvoiceService invoiceService;
 
-    @PostMapping
+    @Autowired
+    com.smartreconcile.backend.auth.security.SecurityUtils securityUtils;
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('VENDOR') or hasRole('ACCOUNTS')")
-    public ResponseEntity<InvoiceResponse> createInvoice(@Valid @RequestBody InvoiceRequest request) {
-        InvoiceResponse response = invoiceService.createInvoice(request);
+    public ResponseEntity<InvoiceResponse> createInvoice(
+            @RequestPart("invoice") @Valid InvoiceRequest request,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        if (!securityUtils.isVendorOwner(request.getVendorId())) {
+            return ResponseEntity.status(403).build();
+        }
+        InvoiceResponse response = invoiceService.createInvoice(request, file);
         return ResponseEntity.ok(response);
     }
 
@@ -36,8 +46,11 @@ public class InvoiceController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('VENDOR') or hasRole('ACCOUNTS') or hasRole('FINANCE_MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<InvoiceResponse> getInvoiceById(@PathVariable Long id) {
-        // In production, add security check if VENDOR owns this invoice
-        return ResponseEntity.ok(invoiceService.getInvoiceById(id));
+        InvoiceResponse response = invoiceService.getInvoiceById(id);
+        if (!securityUtils.isVendorOwner(response.getVendorId())) {
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
@@ -54,6 +67,9 @@ public class InvoiceController {
     @GetMapping("/my-invoices/{vendorId}")
     @PreAuthorize("hasRole('VENDOR') or hasRole('ACCOUNTS') or hasRole('FINANCE_MANAGER')")
     public ResponseEntity<Page<InvoiceResponse>> getMyInvoices(@PathVariable Long vendorId, Pageable pageable) {
+        if (!securityUtils.isVendorOwner(vendorId)) {
+            return ResponseEntity.status(403).build();
+        }
         return ResponseEntity.ok(invoiceService.getInvoicesByVendor(vendorId, pageable));
     }
 }

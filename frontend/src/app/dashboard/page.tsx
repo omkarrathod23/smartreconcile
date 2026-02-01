@@ -17,6 +17,18 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
+import {
+    AreaChart,
+    Area,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    BarChart,
+    Bar
+} from "recharts";
 
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -27,7 +39,7 @@ export default function DashboardPage() {
         cashflow: "$0",
         disputes: "0"
     });
-    const [recentInvoices, setRecentInvoices] = useState([]);
+    const [recentActivities, setRecentActivities] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const isVendor = user?.roles.includes("ROLE_VENDOR");
@@ -84,7 +96,13 @@ export default function DashboardPage() {
                     disputes: disputesCount
                 });
 
-                setRecentInvoices(invoices.slice(0, 5));
+                // 5. Merge for Recent Activities
+                const combined = [
+                    ...invoices.map((inv: any) => ({ ...inv, activityType: 'INVOICE', date: inv.issueDate })),
+                    ...payments.map((pmt: any) => ({ ...pmt, activityType: 'PAYMENT', date: pmt.paymentDate }))
+                ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+                setRecentActivities(combined.slice(0, 6));
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error);
             } finally {
@@ -120,6 +138,54 @@ export default function DashboardPage() {
         { label: "Pending Approvals", value: "4", trend: "High priority", color: "text-warning", icon: Clock },
     ];
 
+    const chartData = [
+        { name: "Jul", value: 4000 },
+        { name: "Aug", value: 3000 },
+        { name: "Sep", value: 5000 },
+        { name: "Oct", value: 2780 },
+        { name: "Nov", value: 1890 },
+        { name: "Dec", value: 2390 },
+        { name: "Jan", value: 3490 },
+    ];
+
+    const FinancialChart = () => (
+        <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+                <defs>
+                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+                <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#666', fontSize: 10 }}
+                />
+                <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#666', fontSize: 10 }}
+                    tickFormatter={(value) => `$${value}`}
+                />
+                <Tooltip
+                    contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '12px', fontSize: '12px' }}
+                    itemStyle={{ color: '#fff' }}
+                />
+                <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#3b82f6"
+                    fillOpacity={1}
+                    fill="url(#colorValue)"
+                    strokeWidth={3}
+                />
+            </AreaChart>
+        </ResponsiveContainer>
+    );
+
     return (
         <DashboardLayout>
             <div className="space-y-8">
@@ -154,19 +220,14 @@ export default function DashboardPage() {
                                 <div className="w-3 h-3 rounded-full bg-success opacity-50" />
                             </div>
                         </div>
-                        <div className="h-[320px] w-full bg-accent/20 rounded-2xl flex items-center justify-center border-2 border-dashed border-border/50">
-                            <div className="text-center">
-                                <Activity size={32} className="text-muted-foreground/30 mx-auto mb-2" />
-                                <p className="text-muted-foreground text-sm font-medium italic">
-                                    {isVendor ? "Your Individual Performance Analytics Loading..." : "Financial Trends Visualization Mode"}
-                                </p>
-                            </div>
+                        <div className="h-[320px] w-full bg-accent/10 rounded-2xl p-4">
+                            <FinancialChart />
                         </div>
                     </div>
 
                     <div className="bg-card border rounded-2xl p-6 shadow-sm flex flex-col">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="font-semibold text-lg">{isVendor ? "Recent Invoices" : "Needs Attention"}</h3>
+                            <h3 className="font-semibold text-lg">Recent Activities</h3>
                             <button className="text-primary text-sm font-bold hover:underline flex items-center gap-1">
                                 View all <ArrowRight size={14} />
                             </button>
@@ -176,24 +237,31 @@ export default function DashboardPage() {
                                 <div className="flex items-center justify-center h-full">
                                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                                 </div>
-                            ) : recentInvoices.length > 0 ? (
-                                recentInvoices.map((inv: any) => (
-                                    <div key={inv.id} className="flex items-center justify-between p-4 rounded-xl hover:bg-accent/50 transition-all border border-transparent hover:border-border group">
+                            ) : recentActivities.length > 0 ? (
+                                recentActivities.map((act: any, idx: number) => (
+                                    <div key={idx} className="flex items-center justify-between p-3 rounded-xl hover:bg-accent/50 transition-all border border-transparent hover:border-border group">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center group-hover:bg-card transition-colors">
-                                                <FileText size={18} className="text-muted-foreground" />
+                                            <div className={cn(
+                                                "w-10 h-10 rounded-lg flex items-center justify-center transition-colors",
+                                                act.activityType === 'INVOICE' ? "bg-warning/10 text-warning" : "bg-success/10 text-success"
+                                            )}>
+                                                {act.activityType === 'INVOICE' ? <FileText size={18} /> : <CreditCard size={18} />}
                                             </div>
                                             <div>
-                                                <p className="text-sm font-semibold">{isVendor ? "To SmartCorp" : inv.vendorName}</p>
-                                                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{inv.invoiceNumber}</p>
+                                                <p className="text-sm font-semibold">
+                                                    {act.activityType === 'INVOICE' ? (isVendor ? "Invoice Submitted" : act.vendorName) : "Payment Recorded"}
+                                                </p>
+                                                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+                                                    {act.activityType === 'INVOICE' ? act.invoiceNumber : act.transactionRef}
+                                                </p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-sm font-bold tracking-tight">${inv.amountTotal?.toLocaleString()}</p>
-                                            <span className={`text-[9px] font-black uppercase tracking-[0.1em] ${inv.status === 'PAID' ? 'text-success' :
-                                                inv.status === 'OVERDUE' ? 'text-danger' : 'text-warning'
-                                                }`}>
-                                                {inv.status}
+                                            <p className="text-sm font-bold tracking-tight">
+                                                {act.activityType === 'INVOICE' ? `$${act.amountTotal?.toLocaleString()}` : `$${act.amount?.toLocaleString()}`}
+                                            </p>
+                                            <span className="text-[9px] font-black uppercase tracking-[0.1em] text-muted-foreground">
+                                                {act.date}
                                             </span>
                                         </div>
                                     </div>
@@ -203,7 +271,7 @@ export default function DashboardPage() {
                                     <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center mb-2">
                                         <Clock size={24} className="text-muted-foreground" />
                                     </div>
-                                    <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest">Everything Caught Up</p>
+                                    <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest">No Recent Activity</p>
                                 </div>
                             )}
                         </div>

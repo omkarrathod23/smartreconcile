@@ -11,9 +11,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import com.smartreconcile.backend.config.CloudinaryService;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 
 @Service
@@ -25,8 +27,11 @@ public class InvoiceService {
     @Autowired
     VendorRepository vendorRepository;
 
+    @Autowired
+    CloudinaryService cloudinaryService;
+
     @Transactional
-    public InvoiceResponse createInvoice(InvoiceRequest request) {
+    public InvoiceResponse createInvoice(InvoiceRequest request, MultipartFile file) {
         Vendor vendor = vendorRepository.findById(request.getVendorId())
                 .orElseThrow(() -> new RuntimeException("Vendor not found"));
 
@@ -37,6 +42,17 @@ public class InvoiceService {
 
         Invoice invoice = new Invoice();
         BeanUtils.copyProperties(request, invoice);
+
+        // Handle file upload
+        if (file != null && !file.isEmpty()) {
+            try {
+                String fileUrl = cloudinaryService.uploadFile(file);
+                invoice.setFileUrl(fileUrl);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to upload invoice file: " + e.getMessage());
+            }
+        }
+
         invoice.setVendor(vendor);
         invoice.setAmountPaid(BigDecimal.ZERO);
         invoice.setStatus(InvoiceStatus.CREATED);
@@ -68,10 +84,10 @@ public class InvoiceService {
     public InvoiceResponse updateInvoice(Long id, InvoiceRequest request) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
-        
+
         BeanUtils.copyProperties(request, invoice, "id", "status", "amountPaid");
         invoice.calculateDue();
-        
+
         Invoice updated = invoiceRepository.save(invoice);
         return mapToResponse(updated);
     }

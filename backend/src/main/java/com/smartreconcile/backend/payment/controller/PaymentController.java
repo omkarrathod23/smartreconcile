@@ -36,10 +36,15 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getUnallocatedPayments(pageable));
     }
 
+    @Autowired
+    com.smartreconcile.backend.auth.security.SecurityUtils securityUtils;
+
     @GetMapping("/my-payments/{vendorId}")
     @PreAuthorize("hasRole('VENDOR') or hasRole('ACCOUNTS') or hasRole('FINANCE_MANAGER')")
     public ResponseEntity<Page<PaymentResponse>> getMyPayments(@PathVariable Long vendorId, Pageable pageable) {
-        // TODO: Security check
+        if (!securityUtils.isVendorOwner(vendorId)) {
+            return ResponseEntity.status(403).build();
+        }
         return ResponseEntity.ok(paymentService.getPaymentsByVendor(vendorId, pageable));
     }
 }

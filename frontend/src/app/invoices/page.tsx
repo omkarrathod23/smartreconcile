@@ -5,24 +5,47 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { FileText, Plus, Search, Filter, Download, Loader2 } from "lucide-react";
 import api from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { InvoiceForm } from "@/components/invoices/InvoiceForm";
 
 export default function InvoicesPage() {
+    const { user } = useAuth();
     const [invoices, setInvoices] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showForm, setShowForm] = useState(false);
+    const [vendorId, setVendorId] = useState<number | undefined>(undefined);
+
+    const isVendor = user?.roles.includes("ROLE_VENDOR");
 
     useEffect(() => {
-        const fetchInvoices = async () => {
-            try {
-                const response = await api.get("/invoices");
-                setInvoices(response.data.content || []);
-            } catch (error) {
-                console.error("Failed to fetch invoices", error);
-            } finally {
-                setIsLoading(false);
+        const fetchUserData = async () => {
+            if (isVendor && user?.id) {
+                try {
+                    const vendorRes = await api.get(`/vendors/me/${user.id}`);
+                    setVendorId(vendorRes.data.id);
+                } catch (e) {
+                    console.error("Vendor profile not found");
+                }
             }
         };
+        fetchUserData();
+    }, [user, isVendor]);
+    const fetchInvoices = async () => {
+        setIsLoading(true);
+        try {
+            const endpoint = vendorId ? `/invoices/my-invoices/${vendorId}` : "/invoices";
+            const response = await api.get(endpoint);
+            setInvoices(response.data.content || []);
+        } catch (error) {
+            console.error("Failed to fetch invoices", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchInvoices();
-    }, []);
+    }, [vendorId]);
 
     return (
         <DashboardLayout>
@@ -36,11 +59,30 @@ export default function InvoicesPage() {
                         <button className="bg-accent text-foreground px-4 py-2 rounded-xl font-medium border border-border flex items-center gap-2 hover:bg-accent/80 transition-colors">
                             <Download size={18} /> Export
                         </button>
-                        <button className="bg-primary text-white px-4 py-2 rounded-xl font-medium shadow-sm hover:bg-primary/90 flex items-center gap-2 transition-all active:scale-95">
-                            <Plus size={18} /> Create Invoice
-                        </button>
+                        {(isVendor || user?.roles.includes("ROLE_ACCOUNTS")) && (
+                            <button
+                                onClick={() => setShowForm(true)}
+                                className="bg-primary text-white px-4 py-2 rounded-xl font-medium shadow-sm hover:bg-primary/90 flex items-center gap-2 transition-all active:scale-95"
+                            >
+                                <Plus size={18} /> Create Invoice
+                            </button>
+                        )}
                     </div>
                 </div>
+
+                {showForm && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+                        <div className="bg-card border rounded-[32px] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                            <div className="p-8">
+                                <InvoiceForm
+                                    onClose={() => setShowForm(false)}
+                                    onSuccess={fetchInvoices}
+                                    vendorId={vendorId}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
                     <div className="p-4 border-b flex items-center justify-between">

@@ -70,7 +70,8 @@ public class WebSecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
                 "http://127.0.0.1:3000",
-                "https://smartreconcile.onrender.com"));
+                "https://smartreconcile.onrender.com",
+                "https://smartreconcile.vercel.app"));
 
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));

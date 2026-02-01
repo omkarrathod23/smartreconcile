@@ -24,7 +24,7 @@ const sidebarItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["ROLE_ADMIN", "ROLE_FINANCE_MANAGER", "ROLE_ACCOUNTS", "ROLE_VENDOR"] },
     { name: "Vendors", href: "/vendors", icon: Users, roles: ["ROLE_ADMIN", "ROLE_FINANCE_MANAGER"] },
     { name: "Invoices", href: "/invoices", icon: FileText, roles: ["ROLE_ADMIN", "ROLE_FINANCE_MANAGER", "ROLE_ACCOUNTS", "ROLE_VENDOR"] },
-    { name: "Payments", href: "/payments", icon: CreditCard, roles: ["ROLE_ADMIN", "ROLE_FINANCE_MANAGER", "ROLE_ACCOUNTS"] },
+    { name: "Payments", href: "/payments", icon: CreditCard, roles: ["ROLE_ADMIN", "ROLE_FINANCE_MANAGER", "ROLE_ACCOUNTS", "ROLE_VENDOR"] },
     { name: "Reconciliation", href: "/reconciliation", icon: CheckCircle2, roles: ["ROLE_ADMIN", "ROLE_FINANCE_MANAGER"] },
     { name: "Disputes", href: "/disputes", icon: AlertCircle, roles: ["ROLE_ADMIN", "ROLE_FINANCE_MANAGER", "ROLE_ACCOUNTS", "ROLE_VENDOR"] },
     { name: "Reports", href: "/reports", icon: BarChart3, roles: ["ROLE_ADMIN", "ROLE_FINANCE_MANAGER"] },

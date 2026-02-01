@@ -5,24 +5,46 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { CreditCard, Search, ExternalLink, Loader2 } from "lucide-react";
 import api from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 export default function PaymentsPage() {
-    const [payments, setPayments] = useState([]);
+    const { user } = useAuth();
+    const [payments, setPayments] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [vendorId, setVendorId] = useState<number | undefined>(undefined);
+
+    const isVendor = user?.roles.includes("ROLE_VENDOR");
 
     useEffect(() => {
-        const fetchPayments = async () => {
-            try {
-                const response = await api.get("/payments");
-                setPayments(response.data.content || []);
-            } catch (error) {
-                console.error("Failed to fetch payments", error);
-            } finally {
-                setIsLoading(false);
+        const fetchUserData = async () => {
+            if (isVendor && user?.id) {
+                try {
+                    const vendorRes = await api.get(`/vendors/me/${user.id}`);
+                    setVendorId(vendorRes.data.id);
+                } catch (e) {
+                    console.error("Vendor profile not found");
+                }
             }
         };
+        fetchUserData();
+    }, [user, isVendor]);
+
+    const fetchPayments = async () => {
+        setIsLoading(true);
+        try {
+            const endpoint = vendorId ? `/payments/my-payments/${vendorId}` : "/payments";
+            const response = await api.get(endpoint);
+            setPayments(response.data.content || []);
+        } catch (error) {
+            console.error("Failed to fetch payments", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchPayments();
-    }, []);
+    }, [vendorId]);
 
     return (
         <DashboardLayout>

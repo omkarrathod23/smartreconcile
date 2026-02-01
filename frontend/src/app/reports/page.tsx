@@ -3,6 +3,69 @@
 import React from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { BarChart3, PieChart, TrendingUp, Download } from "lucide-react";
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    PieChart as RePieChart,
+    Pie,
+    Cell,
+    Legend
+} from "recharts";
+
+const agingData = [
+    { name: "0-30", value: 12400 },
+    { name: "31-60", value: 4200 },
+    { name: "61-90", value: 1800 },
+    { name: "90+", value: 850 },
+];
+
+const distributionData = [
+    { name: "Software SaaS", value: 45 },
+    { name: "Infrastructure", value: 30 },
+    { name: "Logistics", value: 25 },
+];
+
+const COLORS = ["#3b82f6", "#10b981", "#f59e0b"];
+
+const AgingChart = () => (
+    <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={agingData}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 10 }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 10 }} />
+            <Tooltip
+                contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '12px' }}
+                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+            />
+            <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={40} />
+        </BarChart>
+    </ResponsiveContainer>
+);
+
+const DistributionChart = () => (
+    <ResponsiveContainer width="100%" height="100%">
+        <RePieChart>
+            <Pie
+                data={distributionData}
+                innerRadius={60}
+                outerRadius={80}
+                paddingAngle={5}
+                dataKey="value"
+            >
+                {distributionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+            </Pie>
+            <Tooltip contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '12px' }} />
+            <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '20px' }} />
+        </RePieChart>
+    </ResponsiveContainer>
+);
 
 export default function ReportsPage() {
     return (
@@ -27,8 +90,8 @@ export default function ReportsPage() {
                             </div>
                             <h3 className="font-semibold text-lg">Vendor Aging</h3>
                         </div>
-                        <div className="h-[250px] bg-accent/30 rounded-lg flex items-center justify-center border-2 border-dashed border-border/50">
-                            <p className="text-muted-foreground text-sm font-medium">Recharts BarChart - Aging Buckets</p>
+                        <div className="h-[250px] bg-accent/10 rounded-lg p-2">
+                            <AgingChart />
                         </div>
                         <div className="mt-4 grid grid-cols-4 gap-4 text-center">
                             <div>
@@ -58,22 +121,8 @@ export default function ReportsPage() {
                             </div>
                             <h3 className="font-semibold text-lg">Expense Distribution</h3>
                         </div>
-                        <div className="h-[250px] bg-accent/30 rounded-lg flex items-center justify-center border-2 border-dashed border-border/50">
-                            <p className="text-muted-foreground text-sm font-medium">Recharts PieChart - By Category</p>
-                        </div>
-                        <div className="mt-4 space-y-2">
-                            <div className="flex justify-between text-xs font-medium">
-                                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-primary" /> Software SaaS</span>
-                                <span>45%</span>
-                            </div>
-                            <div className="flex justify-between text-xs font-medium">
-                                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-success" /> Infrastructure</span>
-                                <span>30%</span>
-                            </div>
-                            <div className="flex justify-between text-xs font-medium">
-                                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-warning" /> Logistics</span>
-                                <span>25%</span>
-                            </div>
+                        <div className="h-[250px] bg-accent/10 rounded-lg p-2">
+                            <DistributionChart />
                         </div>
                     </div>
                 </div>

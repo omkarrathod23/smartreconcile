@@ -5,22 +5,26 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Plus, Users, Search, MoreHorizontal, Loader2 } from "lucide-react";
 import api from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { VendorForm } from "@/components/vendors/VendorForm";
 
 const VendorsPage = () => {
     const [vendors, setVendors] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showForm, setShowForm] = useState(false);
+
+    const fetchVendors = async () => {
+        setIsLoading(true);
+        try {
+            const response = await api.get("/vendors");
+            setVendors(response.data);
+        } catch (error) {
+            console.error("Failed to fetch vendors", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchVendors = async () => {
-            try {
-                const response = await api.get("/vendors");
-                setVendors(response.data);
-            } catch (error) {
-                console.error("Failed to fetch vendors", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchVendors();
     }, []);
 
@@ -32,10 +36,26 @@ const VendorsPage = () => {
                         <h2 className="text-2xl font-bold tracking-tight">Vendors</h2>
                         <p className="text-muted-foreground">Manage your supplier relationships and billing details</p>
                     </div>
-                    <button className="bg-primary text-white px-4 py-2 rounded-xl font-medium shadow-sm hover:bg-primary/90 flex items-center gap-2 transition-all active:scale-95">
+                    <button
+                        onClick={() => setShowForm(true)}
+                        className="bg-primary text-white px-4 py-2 rounded-xl font-medium shadow-sm hover:bg-primary/90 flex items-center gap-2 transition-all active:scale-95"
+                    >
                         <Plus size={18} /> Add Vendor
                     </button>
                 </div>
+
+                {showForm && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+                        <div className="bg-card border rounded-[32px] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                            <div className="p-8">
+                                <VendorForm
+                                    onClose={() => setShowForm(false)}
+                                    onSuccess={fetchVendors}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
                     <div className="p-4 border-b flex items-center justify-between gap-4">
