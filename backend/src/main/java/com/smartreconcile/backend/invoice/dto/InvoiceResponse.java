@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @Setter
 public class InvoiceResponse {
     private Long id;
+    private Long vendorId;
     private String vendorName;
     private String invoiceNumber;
     private String poNumber;

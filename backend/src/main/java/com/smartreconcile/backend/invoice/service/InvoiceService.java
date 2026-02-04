@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import com.smartreconcile.backend.config.CloudinaryService;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -95,6 +96,7 @@ public class InvoiceService {
     private InvoiceResponse mapToResponse(Invoice invoice) {
         InvoiceResponse response = new InvoiceResponse();
         BeanUtils.copyProperties(invoice, response);
+        response.setVendorId(invoice.getVendor().getId());
         response.setVendorName(invoice.getVendor().getName());
         return response;
     }

@@ -38,7 +38,7 @@ public class DisputeController {
     }
 
     @GetMapping("/my-disputes/{vendorId}")
-    @PreAuthorize("hasRole('VENDOR')")
+    @PreAuthorize("hasRole('VENDOR') or hasRole('ADMIN')")
     public ResponseEntity<Page<Dispute>> getMyDisputes(@PathVariable Long vendorId, Pageable pageable) {
         return ResponseEntity.ok(disputeService.getMyDisputes(vendorId, pageable));
     }

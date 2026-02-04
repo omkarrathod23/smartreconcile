@@ -31,7 +31,7 @@ public class PaymentController {
     }
 
     @GetMapping("/unallocated")
-    @PreAuthorize("hasRole('ACCOUNTS') or hasRole('FINANCE_MANAGER')")
+    @PreAuthorize("hasRole('ACCOUNTS') or hasRole('FINANCE_MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<Page<PaymentResponse>> getUnallocatedPayments(Pageable pageable) {
         return ResponseEntity.ok(paymentService.getUnallocatedPayments(pageable));
     }
@@ -40,7 +40,7 @@ public class PaymentController {
     com.smartreconcile.backend.auth.security.SecurityUtils securityUtils;
 
     @GetMapping("/my-payments/{vendorId}")
-    @PreAuthorize("hasRole('VENDOR') or hasRole('ACCOUNTS') or hasRole('FINANCE_MANAGER')")
+    @PreAuthorize("hasRole('VENDOR') or hasRole('ACCOUNTS') or hasRole('FINANCE_MANAGER') or hasRole('ADMIN')")
     public ResponseEntity<Page<PaymentResponse>> getMyPayments(@PathVariable Long vendorId, Pageable pageable) {
         if (!securityUtils.isVendorOwner(vendorId)) {
             return ResponseEntity.status(403).build();
