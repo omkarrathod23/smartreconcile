@@ -20,7 +20,8 @@ public class ReconciliationService {
     public ReconciliationResult runReconciliation(ReconciliationRequest request) {
         ReconciliationStrategy strategy;
 
-        switch (request.getStrategy()) {
+        String strategyName = request.getStrategy() != null ? request.getStrategy() : "EXACT_MATCH";
+        switch (strategyName) {
             case "FIFO":
                 strategy = fifoStrategy;
                 break;
