@@ -15,7 +15,7 @@ const VendorsPage = () => {
     const fetchVendors = async () => {
         setIsLoading(true);
         try {
-            const response = await api.get("/vendors");
+            const response = await api.get("vendors");
             setVendors(response.data);
         } catch (error) {
             console.error("Failed to fetch vendors", error);

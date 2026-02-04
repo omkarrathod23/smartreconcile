@@ -54,7 +54,7 @@ export default function DashboardPage() {
                 // 1. If Vendor, find their Vendor ID first
                 if (isVendor && user?.id) {
                     try {
-                        const vendorRes = await api.get(`/vendors/me/${user.id}`);
+                        const vendorRes = await api.get(`vendors/me/${user.id}`);
                         currentVendorId = vendorRes.data.id;
                     } catch (e) {
                         console.error("Could not find vendor profile for user");
@@ -62,19 +62,19 @@ export default function DashboardPage() {
                 }
 
                 // 2. Fetch Invoices based on role
-                const invoiceEndpoint = currentVendorId ? `/invoices/my-invoices/${currentVendorId}` : "/invoices";
+                const invoiceEndpoint = currentVendorId ? `invoices/my-invoices/${currentVendorId}` : "invoices";
                 const invoicesRes = await api.get(invoiceEndpoint);
                 const invoices = invoicesRes.data.content || [];
 
                 // 3. Fetch Payments (for total paid)
-                const paymentEndpoint = currentVendorId ? `/payments/my-payments/${currentVendorId}` : "/payments";
+                const paymentEndpoint = currentVendorId ? `payments/my-payments/${currentVendorId}` : "payments";
                 const paymentsRes = await api.get(paymentEndpoint);
                 const payments = paymentsRes.data.content || [];
 
                 // 4. Fetch Disputes (for accounts)
                 let disputesCount = "0";
                 if (isAccounts || isManager) {
-                    const disputesRes = await api.get("/disputes");
+                    const disputesRes = await api.get("disputes");
                     disputesCount = String(disputesRes.data.totalElements || "0");
                 }
 

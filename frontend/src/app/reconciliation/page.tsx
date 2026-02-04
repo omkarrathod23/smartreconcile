@@ -24,8 +24,8 @@ export default function ReconciliationPage() {
         setIsLoading(true);
         try {
             const [invRes, pmtRes] = await Promise.all([
-                api.get("/invoices?status=CREATED"),
-                api.get("/payments/unallocated")
+                api.get("invoices?status=CREATED"),
+                api.get("payments/unallocated")
             ]);
             setOpenInvoices(invRes.data.content || []);
             setUnallocatedPayments(pmtRes.data.content || []);
@@ -44,7 +44,7 @@ export default function ReconciliationPage() {
         setIsProcessing(true);
         setMessage(null);
         try {
-            const response = await api.post("/reconciliation/run", {});
+            const response = await api.post("reconciliation/run", {});
             setMessage(`Success: Reconciled ${response.data.reconciledCount} transactions.`);
             await fetchData();
         } catch (error: any) {

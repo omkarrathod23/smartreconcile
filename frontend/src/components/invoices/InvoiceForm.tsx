@@ -49,7 +49,7 @@ export const InvoiceForm = ({ onClose, onSuccess, vendorId }: InvoiceFormProps) 
         }
 
         try {
-            await api.post("/invoices", data, {
+            await api.post("invoices", data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

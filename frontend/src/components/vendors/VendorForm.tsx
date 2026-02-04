@@ -26,7 +26,7 @@ export const VendorForm = ({ onClose, onSuccess }: VendorFormProps) => {
         setIsLoading(true);
 
         try {
-            await api.post("/vendors/onboard", formData);
+            await api.post("vendors/onboard", formData);
             setIsSuccess(true);
             setTimeout(() => {
                 onSuccess();

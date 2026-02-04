@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const login = async (credentials: any) => {
         try {
-            const response = await api.post("/auth/signin", credentials);
+            const response = await api.post("auth/signin", credentials);
             const { token, id, email, roles } = response.data;
 
             sessionStorage.setItem("token", token);
